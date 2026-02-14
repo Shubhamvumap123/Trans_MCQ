@@ -26,7 +26,7 @@ app.use('/api/transcription', transcriptionRoutes);
 app.use('/api/questions', questionRoutes);
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running!', timestamp: new Date().toISOString() });
 });
 
