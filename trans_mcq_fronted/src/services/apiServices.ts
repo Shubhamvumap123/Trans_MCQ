@@ -1,7 +1,7 @@
 import { VideoFile, TranscriptSegment, MCQuestion, ProcessingProgress } from "../types";
 
 // API base URL - adjust according to your backend setup
-const API_BASE_URL = (import.meta.env.REACT_APP_API_URL || 'http://localhost:5000') as string;
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000') as string;
 
 // Helper function for API calls
 const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
@@ -32,7 +32,7 @@ export const processVideo = async (
     const formData = new FormData();
     formData.append('video', file);
 console.log('file', file)
-    const uploadResponse = await fetch(`${API_BASE_URL}/api/files/upload`, {
+    const uploadResponse = await fetch(`${API_BASE_URL}/files/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -55,7 +55,7 @@ console.log('file', file)
       await new Promise(resolve => setTimeout(resolve, 2000)); // Poll every 2 seconds
       
       try {
-        const statusResponse = await apiCall(`/api/files/${fileId}`);
+        const statusResponse = await apiCall(`/files/${fileId}`);
         
         switch (statusResponse.status) {
           case 'uploaded':
@@ -133,7 +133,7 @@ console.log('file', file)
 // Get transcript segments for a video
 export const getTranscriptSegments = async (videoId: string): Promise<TranscriptSegment[]> => {
   try {
-    const transcriptionResponse = await apiCall(`/api/transcription/file/${videoId}`);
+    const transcriptionResponse = await apiCall(`/transcription/file/${videoId}`);
     
     if (!transcriptionResponse.segments || transcriptionResponse.segments.length === 0) {
       return [];
@@ -168,7 +168,7 @@ export const getMCQuestions = async (segmentId: string): Promise<MCQuestion[]> =
     const segmentIndex = parseInt(segmentIndexStr, 10);
     
     // First get transcription ID
-    const transcriptionResponse = await apiCall(`/api/transcription/file/${videoId}`);
+    const transcriptionResponse = await apiCall(`/transcription/file/${videoId}`);
     const transcriptionId = transcriptionResponse._id;
     
     if (!transcriptionId) {
@@ -176,7 +176,7 @@ export const getMCQuestions = async (segmentId: string): Promise<MCQuestion[]> =
     }
 
     // Get questions for this segment
-    const questionsResponse = await apiCall(`/api/questions/transcription/${transcriptionId}/segment/${segmentIndex}`);
+    const questionsResponse = await apiCall(`/questions/transcription/${transcriptionId}/segment/${segmentIndex}`);
     
     if (!Array.isArray(questionsResponse)) {
       return [];
@@ -203,7 +203,7 @@ export const getMCQuestions = async (segmentId: string): Promise<MCQuestion[]> =
 export const getAllQuestions = async (videoId: string): Promise<MCQuestion[]> => {
   try {
     // First get transcription ID
-    const transcriptionResponse = await apiCall(`/api/transcription/file/${videoId}`);
+    const transcriptionResponse = await apiCall(`/transcription/file/${videoId}`);
     const transcriptionId = transcriptionResponse._id;
     
     if (!transcriptionId) {
@@ -211,7 +211,7 @@ export const getAllQuestions = async (videoId: string): Promise<MCQuestion[]> =>
     }
 
     // Get all questions for this transcription
-    const questionsResponse = await apiCall(`/api/questions/transcription/${transcriptionId}`);
+    const questionsResponse = await apiCall(`/questions/transcription/${transcriptionId}`);
     
     if (!Array.isArray(questionsResponse)) {
       return [];
