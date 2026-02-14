@@ -7,9 +7,13 @@ import morgan from 'morgan';
 import fileRoutes from './routes/fileRoutes';
 import transcriptionRoutes from './routes/transcriptionRoutes';
 import questionRoutes from './routes/questionRoutes';
+import analyticsRoutes from './routes/analyticsRoutes';
+import exportRoutes from './routes/exportRoutes';
+import advancedQuestionRoutes from './routes/advancedQuestionRoutes';
 import { helmetConfig, httpsRedirect, corsOptions, apiLimiter, fileUploadLimiter } from './middleware/security';
 import { errorHandler } from './middleware/errorHandler';
 import { sanitizeInput } from './middleware/validation';
+import logger from './services/loggerService';
 
 dotenv.config();
 
@@ -62,6 +66,9 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.use('/api/files', fileUploadLimiter, fileRoutes);
 app.use('/api/transcription', transcriptionRoutes);
 app.use('/api/questions', questionRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/export', exportRoutes);
+app.use('/api/questions-advanced', advancedQuestionRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
