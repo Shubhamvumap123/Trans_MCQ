@@ -10,6 +10,8 @@ import questionRoutes from './routes/questionRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import exportRoutes from './routes/exportRoutes';
 import advancedQuestionRoutes from './routes/advancedQuestionRoutes';
+import realtimeTranscriptionRoutes from './routes/realtimeTranscriptionRoutes';
+import improvedMCQRoutes from './routes/improvedMCQRoutes';
 import { helmetConfig, httpsRedirect, corsOptions, apiLimiter, fileUploadLimiter } from './middleware/security';
 import { errorHandler } from './middleware/errorHandler';
 import { sanitizeInput } from './middleware/validation';
@@ -65,7 +67,9 @@ app.get('/api/health', (req: Request, res: Response) => {
 // API Routes
 app.use('/api/files', fileUploadLimiter, fileRoutes);
 app.use('/api/transcription', transcriptionRoutes);
+app.use('/api/transcription', realtimeTranscriptionRoutes);
 app.use('/api/questions', questionRoutes);
+app.use('/api/questions', improvedMCQRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/questions-advanced', advancedQuestionRoutes);

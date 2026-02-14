@@ -9,6 +9,9 @@ export interface IFile extends Document {
   mimeType: string;
   uploadedAt: Date;
   status: 'uploaded' | 'processing' | 'transcribing' | 'generating' | 'completed' | 'failed';
+  language: 'en' | 'hi' | 'mr' | 'kn' | 'te'; // English, Hindi, Marathi, Kannada, Telugu
+  transcriptionProvider?: 'google' | 'azure' | 'assemblyai' | 'ollama'; // Service to use for transcription
+  enableRealtime?: boolean; // Whether to do real-time transcription during video play
 }
 
 const FileSchema: Schema = new Schema({
@@ -23,6 +26,21 @@ const FileSchema: Schema = new Schema({
     enum: ['uploaded', 'processing', 'transcribing', 'generating', 'completed', 'failed'],
     default: 'uploaded',
     index: true
+  },
+  language: {
+    type: String,
+    enum: ['en', 'hi', 'mr', 'kn', 'te'],
+    default: 'en',
+    index: true
+  },
+  transcriptionProvider: {
+    type: String,
+    enum: ['google', 'azure', 'assemblyai', 'ollama'],
+    default: 'google'
+  },
+  enableRealtime: {
+    type: Boolean,
+    default: false
   }
 });
 

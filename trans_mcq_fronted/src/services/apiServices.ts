@@ -492,3 +492,200 @@ export const checkAPIHealth = async (): Promise<boolean> => {
     return false;
   }
 };
+
+// ==================== REAL-TIME TRANSCRIPTION ENDPOINTS ====================
+
+// Get supported languages for transcription
+export const getSupportedLanguages = async(): Promise<any> => {
+  try {
+    return await apiCall('/transcription/languages');
+  } catch (error) {
+    console.error('Error fetching languages:', error);
+    throw error;
+  }
+};
+
+// Start real-time transcription session
+export const startRealtimeTranscription = async (
+  fileId: string,
+  language: 'en' | 'hi' | 'mr' | 'kn' | 'te',
+  options?: { detectSpeaker?: boolean; enablePunctuation?: boolean }
+): Promise<any> => {
+  try {
+    return await apiCall('/transcription/realtime/start', {
+      method: 'POST',
+      body: JSON.stringify({
+        fileId,
+        language,
+        detectSpeaker: options?.detectSpeaker || false,
+        enablePunctuation: options?.enablePunctuation !== false
+      })
+    });
+  } catch (error) {
+    console.error('Error starting realtime transcription:', error);
+    throw error;
+  }
+};
+
+// Submit transcription segment
+export const submitTranscriptionSegment = async (
+  fileId: string,
+  sessionId: string,
+  segmentText: string,
+  timestamp: { start: number; end: number },
+  confidence: number,
+  isFinal: boolean
+): Promise<any> => {
+  try {
+    return await apiCall('/transcription/realtime/segment', {
+      method: 'POST',
+      body: JSON.stringify({
+        fileId,
+        sessionId,
+        segmentText,
+        timestamp,
+        confidence,
+        isFinal
+      })
+    });
+  } catch (error) {
+    console.error('Error submitting segment:', error);
+    throw error;
+  }
+};
+
+// Finish transcription session
+export const finishRealtimeTranscription = async (
+  fileId: string,
+  sessionId: string,
+  segments: any[]
+): Promise<any> => {
+  try {
+    return await apiCall('/transcription/realtime/finish', {
+      method: 'POST',
+      body: JSON.stringify({
+        fileId,
+        sessionId,
+        segments
+      })
+    });
+  } catch (error) {
+    console.error('Error finishing transcription:', error);
+    throw error;
+  }
+};
+
+// Get transcription confidence metrics
+export const getTranscriptionConfidence = async (fileId: string): Promise<any> => {
+  try {
+    return await apiCall(`/transcription/file/${fileId}/confidence`);
+  } catch (error) {
+    console.error('Error fetching confidence metrics:', error);
+    throw error;
+  }
+};
+
+// Change transcription language
+export const changeTranscriptionLanguage = async (fileId: string, newLanguage: string): Promise<any> => {
+  try {
+    return await apiCall(`/transcription/file/${fileId}/language`, {
+      method: 'POST',
+      body: JSON.stringify({ newLanguage })
+    });
+  } catch (error) {
+    console.error('Error changing language:', error);
+    throw error;
+  }
+};
+
+// Get current language setting
+export const getTranscriptionLanguage = async (fileId: string): Promise<any> => {
+  try {
+    return await apiCall(`/transcription/file/${fileId}/language`);
+  } catch (error) {
+    console.error('Error fetching language:', error);
+    throw error;
+  }
+};
+
+// ==================== IMPROVED MCQ GENERATION ENDPOINTS ====================
+
+// Generate improved MCQs for a transcription
+export const generateImprovedMCQs = async (
+  transcriptionId: string,
+  options?: {
+    language?: string;
+    difficulty?: 'easy' | 'medium' | 'hard' | 'mixed';
+    questionCount?: number;
+    focusAreas?: string[];
+    enableMisconceptions?: boolean;
+    llmProvider?: 'openai' | 'mistral' | 'ollama';
+  }
+): Promise<any> => {
+  try {
+    return await apiCall('/questions/improved/generate', {
+      method: 'POST',
+      body: JSON.stringify({
+        transcriptionId,
+        language: options?.language || 'en',
+        difficulty: options?.difficulty || 'mixed',
+        questionCount: options?.questionCount || 5,
+        focusAreas: options?.focusAreas || [],
+        enableMisconceptions: options?.enableMisconceptions !== false,
+        llmProvider: options?.llmProvider
+      })
+    });
+  } catch (error) {
+    console.error('Error generating improved MCQs:', error);
+    throw error;
+  }
+};
+
+// Get improved MCQs for a transcription with filtering
+export const getImprovedMCQs = async (
+  transcriptionId: string,
+  filters?: {
+    difficulty?: 'easy' | 'medium' | 'hard';
+    bloomLevel?: string;
+    objective?: 'recall' | 'application' | 'analysis';
+    page?: number;
+    limit?: number;
+  }
+): Promise<any> => {
+  try {
+    const params = new URLSearchParams();
+    if (filters?.difficulty) params.append('difficulty', filters.difficulty);
+    if (filters?.bloomLevel) params.append('bloomLevel', filters.bloomLevel);
+    if (filters?.objective) params.append('objective', filters.objective);
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+
+    const queryString = params.toString();
+    const url = `/questions/improved/transcription/${transcriptionId}${queryString ? '?' + queryString : ''}`;
+
+    return await apiCall(url);
+  } catch (error) {
+    console.error('Error fetching improved MCQs:', error);
+    throw error;
+  }
+};
+
+// Extract key concepts from transcription
+export const extractConceptsFromTranscription = async (transcriptionId: string): Promise<any> => {
+  try {
+    return await apiCall(`/questions/improved/concepts/${transcriptionId}`);
+  } catch (error) {
+    console.error('Error extracting concepts:', error);
+    throw error;
+  }
+};
+
+// Get quality metrics for MCQs
+export const getMCQQualityMetrics = async (transcriptionId: string): Promise<any> => {
+  try {
+    return await apiCall(`/questions/improved/quality-metrics/${transcriptionId}`);
+  } catch (error) {
+    console.error('Error fetching quality metrics:', error);
+    throw error;
+  }
+};
