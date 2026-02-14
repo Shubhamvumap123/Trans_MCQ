@@ -22,22 +22,27 @@ const TranscriptionSegmentSchema: Schema = new Schema({
   startTime: { type: Number, required: true },
   endTime: { type: Number, required: true },
   text: { type: String, required: true },
-  segmentIndex: { type: Number, required: true }
-});
+  segmentIndex: { type: Number, required: true, index: true }
+}, { _id: false });
 
 const TranscriptionSchema: Schema = new Schema({
-  fileId: { type: Schema.Types.ObjectId, ref: 'File', required: true },
+  fileId: { type: Schema.Types.ObjectId, ref: 'File', required: true, index: true, unique: true },
   fullTranscript: { type: String, required: true },
   segments: [TranscriptionSegmentSchema],
   duration: { type: Number, required: true },
-  language: { type: String },
-  createdAt: { type: Date, default: Date.now },
+  language: { type: String, default: 'en' },
+  createdAt: { type: Date, default: Date.now, index: true },
   status: { 
     type: String, 
     enum: ['processing', 'completed', 'failed'],
-    default: 'processing'
+    default: 'processing',
+    index: true
   }
 });
+
+// Create composite indexes for frequently filtered queries
+TranscriptionSchema.index({ fileId: 1, status: 1 });
+TranscriptionSchema.index({ createdAt: -1 });
 
 export default mongoose.model<ITranscription>('Transcription', TranscriptionSchema);
 
