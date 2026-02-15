@@ -44,7 +44,7 @@ export async function transcribeAudioFile(fileId: string): Promise<void> {
     const savedTranscription = await transcription.save();
 
     // Generate questions for each segment
-    // await generateQuestionsForSegments(savedTranscription._id.toString(), segments);
+    await generateQuestionsForSegments(savedTranscription._id.toString(), segments);
 
     // Update file status to completed
     await File.findByIdAndUpdate(fileId, { status: 'completed' });
